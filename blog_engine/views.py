@@ -21,7 +21,8 @@ def post_new(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.published_date = timezone.now()
+            # to save post as a draft
+            #post.published_date = timezone.now()
             post.save()
             return HttpResponseRedirect(reverse('blog_engine:post_detail', args=[post.id]))
     else:
@@ -35,9 +36,25 @@ def post_edit(request, post_id):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.published_date = timezone.now()
+            # to save post as a draft
+            #post.published_date = timezone.now()
             post.save()
             return HttpResponseRedirect(reverse('blog_engine:post_detail', args=[post.id]))
     else:
         form = PostForm(instance=post)
     return render(request, 'blog_engine/post_edit.html', {'form': form})
+
+def post_draft_list(request):
+    posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')
+    return render(request, 'blog_engine/post_draft_list.html', {'posts': posts})
+
+def post_publish(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.publish()
+    return render(request, 'blog_engine/post_detail.html', {'post': post})
+
+def post_remove(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.delete()
+    response = post_list(request)
+    return response
