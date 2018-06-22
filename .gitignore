@@ -5,4 +5,5 @@ blog-env
 db.sqlite3
 .DS_Store
 .idea/
-
+readme.md
+header.png
